@@ -2,50 +2,50 @@ package configs
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"strings"
 
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
 // Config defines the application configuration
 type Config struct {
-	SteamAPIKey  string
-	SteamUserIDs []string
+	SteamAPIKey  string   `mapstructure:"STEAM_API_KEY"`
+	SteamUserIDs []string `mapstructure:"STEAM_USER_IDS"`
 
 	// Bark Configs
-	DeviceKey string
+	DeviceKey string `mapstructure:"BARK_DEVICE_KEY"`
 }
 
 // LoadConfig loads configuration from environment variables
 func LoadConfig() (*Config, error) {
-	// Try to load .env file (non-fatal if fails)
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: Unable to load .env file: %v", err)
-	}
+	// Initialize Viper
+	viper.SetConfigName(".env")
+	viper.SetConfigType("env")
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("./configs")
+	viper.AutomaticEnv()
 
+	// Read config (optional)
+	_ = viper.ReadInConfig()
+
+	// Unmarshall configuration
 	config := &Config{}
-
-	// Get Steam API Key from environment variable
-	config.SteamAPIKey = os.Getenv("STEAM_API_KEY")
-
-	// Get Bark Device Key from environment variable
-	config.DeviceKey = os.Getenv("BARK_DEVICE_KEY")
-
-	// Get Steam User IDs from environment variable
-	userIDsStr := os.Getenv("STEAM_USER_IDS")
-	if userIDsStr != "" {
-		config.SteamUserIDs = strings.Split(userIDsStr, ",")
-		// Clean up whitespace
-		for i, id := range config.SteamUserIDs {
-			config.SteamUserIDs[i] = strings.TrimSpace(id)
-		}
+	if err := viper.Unmarshal(config); err != nil {
+		return nil, fmt.Errorf("error unmarshalling config: %v", err)
 	}
 
 	// Validate required configuration
 	if config.SteamAPIKey == "" {
 		return nil, fmt.Errorf("STEAM_API_KEY is a required configuration")
+	}
+
+	// Process Steam User IDs (for comma-separated string support)
+	if len(config.SteamUserIDs) == 1 && strings.Contains(config.SteamUserIDs[0], ",") {
+		config.SteamUserIDs = strings.Split(config.SteamUserIDs[0], ",")
+		// Clean up whitespace
+		for i, id := range config.SteamUserIDs {
+			config.SteamUserIDs[i] = strings.TrimSpace(id)
+		}
 	}
 
 	if len(config.SteamUserIDs) == 0 {
