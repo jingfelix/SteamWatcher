@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -59,8 +58,8 @@ func main() {
 				req := bark.Req{
 					DeviceKey: config.DeviceKey,
 					Title:     "Steam User Online!",
-					Content:   fmt.Sprintf("Steam user %s is now online", player.PersonName),
-					Icon:      player.Avatar,
+					// Content:   fmt.Sprintf("Steam user %s is now online", player.PersonName),
+					Icon: player.Avatar,
 				}
 				err := bark.Notify(req)
 				if err != nil {
