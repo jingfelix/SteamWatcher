@@ -1,6 +1,6 @@
 module github.com/jingfelix/SteamWatcher
 
-go 1.23
+go 1.23.0
 
 toolchain go1.24.6
 
@@ -16,5 +16,5 @@ require (
 	github.com/lkzc19/bark.sdk.go v0.0.5
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
-	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 )
