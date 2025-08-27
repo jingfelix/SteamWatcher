@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"time"
+
+	"github.com/charmbracelet/log"
 
 	"github.com/dstgo/steamapi"
 	"github.com/jingfelix/SteamWatcher/configs"
@@ -14,18 +15,18 @@ import (
 func main() {
 	config, err := configs.LoadConfig()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	client, err := steamapi.New(config.SteamAPIKey)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	// Parse user IDs from config
 	steamIDs := config.SteamUserIDs
 	if len(steamIDs) == 0 {
-		log.Fatal("No Steam user IDs found in config")
+		log.Error("No Steam user IDs found in config")
 		return
 	}
 
@@ -39,7 +40,7 @@ func main() {
 			strings.Join(steamIDs, ","),
 		)
 		if err != nil {
-			log.Printf("Error checking status for Steam ID %s: %v", steamIDs, err)
+			log.Errorf("Error checking status for Steam ID %s: %v", steamIDs, err)
 			return
 		}
 
@@ -50,7 +51,7 @@ func main() {
 
 			// Compare with last known status and log if changed
 			if lastOnlineStatus[player.SteamId] != isCurrentlyOnline && isCurrentlyOnline {
-				log.Printf("Steam user %s is now online", player.SteamId)
+				log.Infof("Steam user %s is now online", player.SteamId)
 
 				// Print player struct
 
@@ -63,10 +64,10 @@ func main() {
 				}
 				err := bark.Notify(req)
 				if err != nil {
-					log.Printf("Error sending notification for Steam ID %s: %v", player.SteamId, err)
+					log.Errorf("Error sending notification for Steam ID %s: %v", player.SteamId, err)
 				}
 			} else {
-				log.Printf("Steam user %s is now offline", player.SteamId)
+				log.Infof("Steam user %s is now offline", player.SteamId)
 			}
 
 			// Update last known status
@@ -74,7 +75,7 @@ func main() {
 		}
 
 		if onlineCount == 0 {
-			log.Println("No one is online")
+			log.Infof("No one is online")
 		}
 	}
 
